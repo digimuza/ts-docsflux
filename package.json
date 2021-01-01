@@ -1,0 +1,44 @@
+{
+  "name": "ts-docflux",
+  "version": "0.0.9",
+  "description": "",
+  "main": "lib/index.js",
+  "files": [
+    "lib",
+    "src",
+    "tests",
+    "config",
+    "themes",
+    "bin",
+    "LICENSE",
+    "tsconfig.json",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "rm -rf ./lib && tsc",
+    "watch": "yarn link && tsc -w",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Andrius Mozūraitis",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^13.13.5",
+    "typescript": "^4.1.2"
+  },
+  "bin": {
+    "ts-docflux": "./bin/docsflux.js"
+  },
+  "dependencies": {
+    "@microsoft/api-extractor": "^7.12.0",
+    "@types/fs-extra": "^8.1.0",
+    "@types/papaparse": "^5.0.3",
+    "@types/prettier": "^2.1.5",
+    "JSONStream": "^1.3.5",
+    "fs-extra": "^9.0.0",
+    "ix": "^2.5.5",
+    "papaparse": "^5.2.0",
+    "prettier": "^2.2.1",
+    "ts-prime": "^0.3.7",
+    "xml-flow": "^1.0.4"
+  }
+}
