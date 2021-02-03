@@ -39,7 +39,7 @@ const metaData = JSON.parse(readFileSync(libMetaFile).toString())
 const finalData = path.resolve(root, "./docs/data/data.json")
 
 
-const themeLibPath = path.resolve(__dirname, "../../themes/ts-docflux-ts-prime")
+const themeLibPath = path.resolve(__dirname, "../../themes/ts-docsflux-ts-prime/build")
 const themeDestPath = path.resolve(root, "docs/")
 if (existsSync(themeDestPath)) {
     removeSync(themeDestPath)
