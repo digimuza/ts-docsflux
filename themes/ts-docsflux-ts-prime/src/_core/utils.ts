@@ -1,10 +1,6 @@
 import * as P from 'ts-prime'
 
 import marked from 'marked'
-import "./themes/dark.scss"
-import "./themes/light.scss"
-import "./themes/markdown.light.scss"
-import "./themes/markdown.dark.scss"
 // require("./beautify.js")
 import hljs from 'highlight.js/lib/core'
 import javascript from 'highlight.js/lib/languages/typescript'

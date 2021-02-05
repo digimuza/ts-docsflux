@@ -1,14 +1,14 @@
 import { Card, Tag, Typography } from "antd";
 import React, { } from "react";
-import { DocumentationMembers } from "../../_core";
 import * as P from "ts-prime";
 import { tagColor } from "./SideBar";
 import { beautify } from "../../_core/utils";
 import "./Card.css";
 import { Markdown } from "./Markdown";
+import { DocsManipulation } from "../../helpers";
 
 export const DocumentationCard = (props: {
-  docMember: DocumentationMembers[number];
+  docMember: DocsManipulation.DocumentationMembers[number];
 }) => {
   return (
     <Card

@@ -1,24 +1,21 @@
-import { Card, Layout, Menu } from "antd";
+import { Card, Layout } from "antd";
 import React, { PropsWithChildren } from "react";
-import "./themes/light.scss";
-import "./themes/dark.scss";
 import { Switch } from "antd";
-
 import {
   HashRouter as Router,
   Route,
-  useRouteMatch,
-  Link,
   useHistory,
+  Link,
 } from "react-router-dom";
 import * as P from "ts-prime";
 import { Markdown } from "../Documentation/Markdown";
 import { observer } from "mobx-react";
-import { autorun, makeAutoObservable } from "mobx";
 import { useBasePath } from "../..";
+import { layout } from "../../_core/state";
+import { State } from "../../_core";
 const { Header, Content, Sider } = Layout;
 
-const paths = {
+export const paths = {
   home: { key: 1, exact: true, path: "/home", title: "Home" },
   documentation: {
     key: 2,
@@ -32,23 +29,8 @@ const paths = {
   },
 };
 
-export const THEME_KEY = "ts-prime-theme";
-export const ThemeState = makeAutoObservable({
-  theme: localStorage.getItem("ts-prime-theme") || "dark",
-});
-
-autorun(() => {
-  localStorage.setItem(THEME_KEY, ThemeState.theme);
-});
-
 const LayoutHeader = observer(() => {
-  const route = useRouteMatch();
   const basePath = useBasePath();
-  const selected = [
-    Object.values(paths)
-      .find((q) => q.path === route.path)
-      ?.key.toString(),
-  ].filter(P.isDefined);
   return (
     <Header className="header">
       <Link to={"/home"}>
@@ -63,27 +45,19 @@ const LayoutHeader = observer(() => {
           ></img>
         </div>
       </Link>
-      <Menu theme="light" mode="horizontal" defaultSelectedKeys={selected}>
-        <Menu.Item key={paths.home.key}>
-          <Link to={paths.home.path}>{paths.home.title}</Link>
-        </Menu.Item>
-        <Menu.Item key={paths.documentation.key}>
-          <Link to={paths.documentation.path}>{paths.documentation.title}</Link>
-        </Menu.Item>
-      </Menu>
       <div className={"flex"}></div>
       <div style={{ paddingRight: 20 }}>
         <Switch
-          onChange={(q) => {
-            ThemeState.theme = ThemeState.theme === "dark" ? "light" : "dark";
+          onChange={() => {
+            State.theme.theme = State.theme.theme === "dark" ? "light" : "dark";
             return;
           }}
-          checked={ThemeState.theme === "light"}
+          checked={State.theme.theme === "light"}
           checkedChildren={"Dark"}
           unCheckedChildren={"Light"}
         ></Switch>
       </div>
-      {ThemeState.theme === "dark" ? (
+      {State.theme.theme === "dark" ? (
         <div>
           <a href={"https://github.com/digimuza/ts-prime"}>
             <img
@@ -128,6 +102,7 @@ export const Container = (
         style={{
           padding: 24,
           margin: 0,
+          minWidth: 380,
           minHeight: 280,
         }}
       >
@@ -157,10 +132,34 @@ export const Page404 = () => {
   const path = Object.values(paths).find(
     (q) => history.location.pathname === q.path
   );
-  if (path != null) return null
-  history.replace(paths.home.path)
+  if (path != null) return null;
+  history.replace(paths.home.path);
   return null;
 };
+
+export const Sidebar = observer((props: { sideMenu: JSX.Element }) => {
+  return (
+    <Sider
+      width={layout.size({
+        mobile: "80%",
+        desktop: 400,
+        tablet: 300,
+      })}
+      collapsible
+      breakpoint={"lg"}
+      collapsedWidth={0}
+      
+      defaultCollapsed={layout.size({
+        mobile: true,
+        desktop: false,
+        tablet: false,
+      })}
+      className="site-layout-background"
+    >
+      {props.sideMenu}
+    </Sider>
+  );
+});
 
 export const PrimaryLayout = observer(
   (
@@ -169,8 +168,8 @@ export const PrimaryLayout = observer(
       readme: string;
     }>
   ) => {
-    const theme = P.isOneOf(ThemeState.theme, ["dark", "light"])
-      ? ThemeState.theme
+    const theme = P.isOneOf(State.theme.theme, ["dark", "light"])
+      ? State.theme.theme
       : "dark";
     return (
       <Router>
@@ -178,6 +177,7 @@ export const PrimaryLayout = observer(
           <LayoutHeader></LayoutHeader>
           <Route {...paths.home}>
             <View>
+              <Sidebar sideMenu={props.sideMenu}></Sidebar>
               <Container>
                 <Card>
                   <Markdown markdown={props.readme} narrow={true}></Markdown>
@@ -187,9 +187,7 @@ export const PrimaryLayout = observer(
           </Route>
           <Route {...paths.documentation}>
             <View>
-              <Sider width={400} className="site-layout-background">
-                {props.sideMenu}
-              </Sider>
+              <Sidebar sideMenu={props.sideMenu}></Sidebar>
               <Container id={"main-view"}>{props.children}</Container>
             </View>
           </Route>

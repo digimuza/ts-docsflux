@@ -1,13 +1,13 @@
 import React, { Fragment, useEffect } from "react";
-import { DocumentationMembers, groupMembers } from "../../_core";
-import { PrimaryLayout } from "../Layout";
-import { Input } from "antd";
+import { paths, PrimaryLayout } from "../Layout";
+import { Input, Menu } from "antd";
 import { SideBar } from "./SideBar";
 import { DocumentationCard } from "./Card";
 import { observer } from "mobx-react";
 import { makeAutoObservable } from "mobx";
 import * as P from "ts-prime";
-import { useHistory } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { DocsManipulation } from "../../helpers";
 export const SearchState = makeAutoObservable({
   search: "",
 });
@@ -29,9 +29,9 @@ export async function scrollToHash(component: string) {
 }
 
 export default observer(
-  (props: { documentation: DocumentationMembers; readme: string }) => {
+  (props: { documentation: DocsManipulation.DocumentationMembers; readme: string }) => {
     const members = props.documentation.filter((q) => q.kind === "Function");
-    const groupedMembers = groupMembers(members);
+    const groupedMembers = DocsManipulation.groupMembers(members);
     useEffect(() => {
       const path = window.location.hash.split("/").splice(-1)[0];
       scrollToHash(`#link-${path}`);
@@ -42,7 +42,17 @@ export default observer(
         readme={props.readme}
         sideMenu={
           <Fragment>
-            <div style={{ padding: 10 }}>
+            <Menu theme="light" mode="vertical">
+              <Menu.Item key={paths.home.key}>
+                <Link to={paths.home.path}>{paths.home.title}</Link>
+              </Menu.Item>
+              <Menu.Item key={paths.documentation.key}>
+                <Link to={paths.documentation.path}>
+                  {paths.documentation.title}
+                </Link>
+              </Menu.Item>
+            </Menu>
+            <div style={{ padding: 10}} className={"search-input"}>
               <Input
                 size={"large"}
                 placeholder={"Search"}

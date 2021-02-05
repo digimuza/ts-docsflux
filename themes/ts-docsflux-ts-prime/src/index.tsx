@@ -3,16 +3,11 @@ import ReactDOM from "react-dom";
 import "./index.css";
 import App from "./components/Documentation";
 import reportWebVitals from "./reportWebVitals";
-import { DocumentationMembers } from "./_core";
 import axios from "axios";
-import "react-virtualized/styles.css";
+import "./themes/index.scss"
 import * as P from "ts-prime";
-type Data = {
-  docs: DocumentationMembers;
-  articles: {
-    readme: string;
-  };
-};
+import { DocsManipulation } from "./helpers";
+
 
 const getData = async () => {
   const basePath = await P.waitUntilDefined(
@@ -22,7 +17,7 @@ const getData = async () => {
   );
   const result = await axios.get(`${basePath}/data/data.json`);
   return result.data as {
-    docs: DocumentationMembers;
+    docs: DocsManipulation.DocumentationMembers;
     articles: {
       readme: string;
     };

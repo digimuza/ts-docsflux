@@ -1,10 +1,10 @@
 import { Empty, Menu, Tag } from "antd";
 import React, { Fragment, useMemo } from "react";
-import { GroupedDocumentationMembers } from "../../_core";
 import * as P from "ts-prime";
 import { observer } from "mobx-react";
 import { scrollToHash, SearchState } from ".";
 import { useHistory } from "react-router-dom";
+import { DocsManipulation } from "../../helpers";
 
 export function tagColor(tag: string) {
   switch (tag.toLowerCase()) {
@@ -31,7 +31,7 @@ export function tagColor(tag: string) {
   }
 }
 export const SideBar = observer(
-  (props: { groupedMembers: GroupedDocumentationMembers }) => {
+  (props: { groupedMembers: DocsManipulation.GroupedDocumentationMembers }) => {
     const history = useHistory();
     const { groupedMembers } = props;
     const items = useMemo(() => {
@@ -80,7 +80,7 @@ export const SideBar = observer(
       <div
         className={"side-bar-content"}
         style={{
-          height: "calc(100vh - 64px - 72px)",
+          height: "calc(100vh - 64px - 72px - 96px)",
           overflow: "hidden",
           overflowY: "auto",
         }}

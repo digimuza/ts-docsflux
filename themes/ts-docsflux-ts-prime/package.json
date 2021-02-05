@@ -44,7 +44,7 @@
     "web-vitals": "^0.2.4"
   },
   "dependencies": {
-    "@ant-design/icons": "4.3.0",
+    "@ant-design/icons": "^4.4.0",
     "@types/highlight.js": "^10.1.0",
     "@types/highlightjs": "^10.1.0",
     "@types/marked": "1.2.1",

@@ -1,7 +1,8 @@
 import React from "react";
 import App from "../components/Documentation";
-import { DocumentationMembers } from "../_core";
+import { DocsManipulation } from "../helpers";
 import data from "./mock/data.json";
+// eslint-disable-next-line import/no-anonymous-default-export
 export default {
   title: "App",
   component: App,
@@ -9,7 +10,7 @@ export default {
 
 const getMock = () => {
   return data as {
-    docs: DocumentationMembers;
+    docs: DocsManipulation.DocumentationMembers;
     articles: {
       readme: string;
     };
