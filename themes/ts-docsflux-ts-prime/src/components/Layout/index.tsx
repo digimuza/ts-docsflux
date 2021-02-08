@@ -59,7 +59,7 @@ const LayoutHeader = observer(() => {
       </div>
       {State.theme.theme === "dark" ? (
         <div>
-          <a href={"https://github.com/digimuza/ts-prime"}>
+          <a href={"https://github.com/digimuza/iterparse"}>
             <img
               alt={"Github"}
               style={{
@@ -72,7 +72,7 @@ const LayoutHeader = observer(() => {
         </div>
       ) : (
         <div>
-          <a href={"https://github.com/digimuza/ts-prime"}>
+          <a href={"https://github.com/digimuza/iterparse"}>
             <img
               alt={"Github"}
               style={{

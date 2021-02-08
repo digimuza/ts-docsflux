@@ -92,7 +92,7 @@ export function parseComment(comment: string) {
     })
     return {
         description,
-        example: '',
+        examples: [''],
         parsed
     }
 }

@@ -6,29 +6,34 @@ import { scrollToHash, SearchState } from ".";
 import { useHistory } from "react-router-dom";
 import { DocsManipulation } from "../../helpers";
 
-export function tagColor(tag: string) {
-  switch (tag.toLowerCase()) {
-    case "p":
-      return "#fa8c16";
-    case "array":
-      return "#1890ff";
-    case "number":
-      return "#006d75";
-    case "type":
-      return "#08979c";
-    case "string":
-      return "#7cb305";
-    case "object":
-      return "#13c2c2";
-    case "function":
-      return "#0050b3";
-    case "guard":
-      return "#003a8c";
-    case "utility":
-      return "#9e1068";
-    default:
-      return;
+const colors = [
+  "#fa8c16",
+  "#1890ff",
+  "#006d75",
+  "#08979c",
+  "#7cb305",
+  "#13c2c2",
+  "#0050b3",
+  "#003a8c",
+  "#9e1068",
+];
+
+let availableColors = [...colors]
+
+const colorMap = new Map<string, string>();
+
+export function tagColor(tag: string): string {
+  const color = colorMap.get(tag);
+  if (color != null) return color
+
+  const selected = availableColors.shift()
+  if (selected == null) {
+    availableColors = [...colors]
+    return tagColor(tag)
   }
+
+  colorMap.set(tag, selected)
+  return selected
 }
 export const SideBar = observer(
   (props: { groupedMembers: DocsManipulation.GroupedDocumentationMembers }) => {

@@ -1,5 +1,5 @@
 import { Card, Tag, Typography } from "antd";
-import React, { } from "react";
+import React, { Fragment } from "react";
 import * as P from "ts-prime";
 import { tagColor } from "./SideBar";
 import { beautify } from "../../_core/utils";
@@ -21,7 +21,9 @@ export const DocumentationCard = (props: {
       extra={props.docMember.tags
         .map((q) => (q.value === "Pipe" ? "P" : q.value))
         .map((q) => (
-          <Tag key={q} color={tagColor(q)}>{q}</Tag>
+          <Tag key={q} color={tagColor(q)}>
+            {q}
+          </Tag>
         ))}
     >
       <Markdown
@@ -42,36 +44,45 @@ export const DocumentationCard = (props: {
             );
           }
 
-          return null
+          return null;
         })}
       <div style={{ height: 10 }}></div>
       {props.docMember.members[0].comment.parsed
         .filter((q) => q.tag === "@description")
         .map((q) => {
           if (Array.isArray(q.content)) {
-            return <Markdown key={q.tag} markdown={q.content.join("\n")}></Markdown>;
+            return (
+              <Markdown key={q.tag} markdown={q.content.join("\n")}></Markdown>
+            );
           }
 
-          return null
+          return null;
         })}
       <div style={{ height: 10 }}></div>
       <div>
         <div>
-          {P.take(props.docMember.members, 1).map((q) => {
-            const example = q.comment.example;
-            if (example == null) return null;
-            const bExample = beautify(q.comment.example);
-            return (
-              <div key={q.canonicalReference}>
-                <Markdown
-                  markdown={`
-\`\`\`typescript
-${beautify(bExample)}
-\`\`\`
-`}
-                ></Markdown>
-              </div>
-            );
+          {P.take(props.docMember.members, 1).flatMap((q) => {
+            const example = q.comment.examples;
+            return example?.map((e) => {
+              if (example == null) return null;
+
+              const bExample = beautify(e);
+
+              return (
+                <Fragment>
+                  <div key={q.canonicalReference}>
+                    <Markdown
+                      markdown={`
+  \`\`\`typescript
+  ${beautify(bExample)}
+  \`\`\`
+  `}
+                    ></Markdown>
+                  </div>
+                  <div style={{ height: 10 }}></div>
+                </Fragment> 
+              );
+            });
           })}
         </div>
       </div>

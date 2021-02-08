@@ -16,6 +16,7 @@ const getData = async () => {
     3000
   );
   const result = await axios.get(`${basePath}/data/data.json`);
+
   return result.data as {
     docs: DocsManipulation.DocumentationMembers;
     articles: {
