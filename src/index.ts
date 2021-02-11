@@ -1,3 +1,4 @@
+import { basename } from 'path'
 import * as P from 'ts-prime'
 import { Documentation } from './types'
 export function getPackageName(data: Documentation) {
@@ -13,7 +14,7 @@ export function excerptTokensToString(data: ReadonlyArray<Documentation.ExcerptT
 
 function extractCommentsOf(name: string, declaration: string, dtsContent: string) {
     const lines = dtsContent.split("\n")
-    
+
     const findLine = () => {
         const r = lines.findIndex((q) => {
             return q.replace("declare", '').replace(/ +/, ' ').includes(declaration)
@@ -31,12 +32,12 @@ function extractCommentsOf(name: string, declaration: string, dtsContent: string
     if (declarationIndex === -1) {
         throw new Error("Failed to find declaration")
     }
-    
+
     const comments: Array<string> = []
     let track = declarationIndex - 1
     let line = lines[track]
     while (true) {
-       
+
         const match = line.match(/((\/\*\*)|(^( ?\*\/?)))|(\/\/)/gm)
         if (match == null) {
             break
@@ -49,7 +50,7 @@ function extractCommentsOf(name: string, declaration: string, dtsContent: string
     // const comments = [lines[16], lines[15], lines[14], lines[13], lines[12], lines[11], lines[10], lines[9]].reverse()
     return comments.reverse().join("\n")
 }
-export function getMembers(data: Documentation, dtsContent: string) {
+export function getMembers(data: Documentation, dtsContent: string, loadedMDFiles: Record<string, string>) {
     const members = data.members.find((q) => q.kind === 'EntryPoint')
     if (members == null) throw new Error("Failed to find entry point")
     return P.pipe(
@@ -58,7 +59,7 @@ export function getMembers(data: Documentation, dtsContent: string) {
             return {
                 kind: w.kind,
                 name: w.name,
-                comment: parseComment(extractCommentsOf(w.name, excerptTokensToString(w.excerptTokens), dtsContent)),
+                comment: parseComment(extractCommentsOf(w.name, excerptTokensToString(w.excerptTokens), dtsContent), loadedMDFiles),
                 excerptTokens: w.excerptTokens,
                 canonicalReference: w.canonicalReference,
                 package: w.canonicalReference.replace(/(!.+)/gm, ''),
@@ -97,7 +98,7 @@ export function getMembers(data: Documentation, dtsContent: string) {
     )
 }
 
-export function parseComment(comment: string) {
+export function parseComment(comment: string, mdFiles: Record<string, string>) {
     const row = comment.replace(/(?:\/\*\*)?\*(.*)(?:\s+\*\/)?/gm, '$1').replace("/*", '').trim().replace(/(@\w+)/gm, "###$1").split("###").map((q) => q.trim())
     const description = row.filter((q) => !/\@\w+/.test(q))[0]
     const parsed = row.filter((q) => /\@\w+/.test(q)).map((w) => {
@@ -123,6 +124,16 @@ export function parseComment(comment: string) {
                 content: [content.join("\n")]
             }
         }
+
+        if (tag === '@include') {
+            return {
+                tag,
+                content: [content.join("\n")].map((q) =>{
+                    return mdFiles[basename(q)]
+                }).filter(P.isDefined)
+            }
+        }
+
         return {
             tag,
             content: content.flatMap((q) => q.split(",").map((q) => q.trim()))
@@ -130,16 +141,17 @@ export function parseComment(comment: string) {
     })
 
     const prettifyExample = () => {
-        const example = parsed.find((q) => q.tag === '@example')?.content as ReadonlyArray<string> | undefined
+        const example = parsed.filter((q) => q.tag === '@example').map((q) => (q.content as ReadonlyArray<string>)[0]).filter(P.isDefined)
         if (example == null) return
-        return `${example[0]}`
+
+        return example
     }
 
 
 
     return {
         description,
-        example: prettifyExample(),
+        examples: prettifyExample(),
         parsed: parsed.filter((q) => q.tag !== '@example'),
     }
 }

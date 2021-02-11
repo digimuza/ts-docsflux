@@ -1,4 +1,4 @@
-import { Card, Tag, Typography } from "antd";
+import { Card, Collapse, Tag, Typography } from "antd";
 import React, { Fragment } from "react";
 import * as P from "ts-prime";
 import { tagColor } from "./SideBar";
@@ -7,9 +7,29 @@ import "./Card.css";
 import { Markdown } from "./Markdown";
 import { DocsManipulation } from "../../helpers";
 
+const { Panel } = Collapse;
+
 export const DocumentationCard = (props: {
   docMember: DocsManipulation.DocumentationMembers[number];
 }) => {
+  const includeCol = props.docMember.members[0].comment.parsed
+    .filter((q) => q.tag === "@include")
+    .map((q) => {
+      if (Array.isArray(q.content) && q.content.length !== 0) {
+        const title = q.content.join("\n").split("\n").slice(0, 1).join("");
+        return (
+          <Panel header={<h1>{title.replace(/#+/, "")}</h1>} key="2">
+            <Markdown
+              key={q.tag}
+              markdown={q.content.join("\n").replace(title, "")}
+            ></Markdown>
+          </Panel>
+        );
+      }
+
+      return null;
+    });
+
   return (
     <Card
       id={`link-${props.docMember.name}`}
@@ -59,17 +79,50 @@ export const DocumentationCard = (props: {
           return null;
         })}
       <div style={{ height: 10 }}></div>
+      {includeCol.filter(P.isDefined).length !== 0 && (
+        <Collapse>
+          {props.docMember.members[0].comment.parsed
+            .filter((q) => q.tag === "@include")
+            .map((q) => {
+              if (Array.isArray(q.content) && q.content.length !== 0) {
+                const title = q.content
+                  .join("\n")
+                  .split("\n")
+                  .slice(0, 1)
+                  .join("");
+                return (
+                  <Panel
+                    header={
+                      title.replace(/#+/, "")
+                    }
+                    key="2"
+                  >
+                    <Markdown
+                      key={q.tag}
+                      markdown={q.content.join("\n").replace(title, "")}
+                    ></Markdown>
+                  </Panel>
+                );
+              }
+
+              return null;
+            })}
+        </Collapse>
+      )}
+
       <div>
+        <div style={{ height: 30 }}></div>
         <div>
           {P.take(props.docMember.members, 1).flatMap((q) => {
             const example = q.comment.examples;
-            return example?.map((e) => {
+            return example?.map((e, index) => {
               if (example == null) return null;
 
               const bExample = beautify(e);
 
               return (
                 <Fragment>
+                  <h1>Example {index + 1}</h1>
                   <div key={q.canonicalReference}>
                     <Markdown
                       markdown={`
@@ -80,7 +133,7 @@ export const DocumentationCard = (props: {
                     ></Markdown>
                   </div>
                   <div style={{ height: 10 }}></div>
-                </Fragment> 
+                </Fragment>
               );
             });
           })}

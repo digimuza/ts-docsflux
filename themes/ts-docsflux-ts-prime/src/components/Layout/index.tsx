@@ -1,4 +1,4 @@
-import { Card, Layout } from "antd";
+import { Button, Card, Layout } from "antd";
 import React, { PropsWithChildren } from "react";
 import { Switch } from "antd";
 import {
@@ -10,11 +10,11 @@ import {
 import * as P from "ts-prime";
 import { Markdown } from "../Documentation/Markdown";
 import { observer } from "mobx-react";
-import { useBasePath } from "../..";
+import { useDeps } from "../..";
 import { layout } from "../../_core/state";
 import { State } from "../../_core";
+import { MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
 const { Header, Content, Sider } = Layout;
-
 export const paths = {
   home: { key: 1, exact: true, path: "/home", title: "Home" },
   documentation: {
@@ -30,18 +30,34 @@ export const paths = {
 };
 
 const LayoutHeader = observer(() => {
-  const basePath = useBasePath();
+  const deps = useDeps();
   return (
     <Header className="header">
+      <div>
+        {layout.screenSize === "mobile" && (
+          <Button
+            type="dashed"
+            onClick={() => {
+              layout.sideBarIsCollapsed = !layout.sideBarIsCollapsed;
+            }}
+          >
+            {layout.sideBarIsCollapsed ? (
+              <MenuUnfoldOutlined />
+            ) : (
+              <MenuFoldOutlined />
+            )}
+          </Button>
+        )}
+      </div>
       <Link to={"/home"}>
-        <div className={"logo"}>
+        <div className={"logo"} style={{ paddingLeft: 20 }}>
           <img
             alt={"logo"}
             style={{
               width: 100,
               height: "auto",
             }}
-            src={`${basePath}/logo.svg`}
+            src={`${deps.basePath}/logo.svg`}
           ></img>
         </div>
       </Link>
@@ -59,27 +75,27 @@ const LayoutHeader = observer(() => {
       </div>
       {State.theme.theme === "dark" ? (
         <div>
-          <a href={"https://github.com/digimuza/iterparse"}>
+          <a href={deps.config.repositoryUrl}>
             <img
               alt={"Github"}
               style={{
                 width: "auto",
                 height: "30px",
               }}
-              src={`${basePath}/github.white.svg`}
+              src={`${deps.basePath}/github.white.svg`}
             ></img>
           </a>
         </div>
       ) : (
         <div>
-          <a href={"https://github.com/digimuza/iterparse"}>
+          <a href={deps.config.repositoryUrl}>
             <img
               alt={"Github"}
               style={{
                 width: "auto",
                 height: "30px",
               }}
-              src={`${basePath}/github.svg`}
+              src={`${deps.basePath}/github.svg`}
             ></img>
           </a>
         </div>
@@ -88,29 +104,40 @@ const LayoutHeader = observer(() => {
   );
 });
 
-export const Container = (
-  props: PropsWithChildren<{ className?: string; id?: string }>
-) => {
-  return (
-    <Layout
-      id={props.id}
-      className={`${props.className ?? ""}`}
-      style={{ padding: "0 24px 24px" }}
-    >
-      <Content
-        className={`content`}
+export const Container = observer(
+  (props: PropsWithChildren<{ className?: string; id?: string }>) => {
+    return (
+      <Layout
+        id={props.id}
+        className={`${props.className ?? ""}`}
         style={{
-          padding: 24,
-          margin: 0,
-          minWidth: 380,
-          minHeight: 280,
+          padding: `0 ${layout.size({
+            desktop: 24,
+            mobile: 0,
+            tablet: 0,
+          })}px 0px`,
         }}
       >
-        {props.children}
-      </Content>
-    </Layout>
-  );
-};
+        <Content
+          className={`content`}
+          style={{
+            padding: layout.size({
+              desktop: 24,
+              mobile: 0,
+              tablet: 0,
+            }),
+            margin: 0,
+            minWidth: 380,
+            maxWidth: 1280,
+            minHeight: 280,
+          }}
+        >
+          {props.children}
+        </Content>
+      </Layout>
+    );
+  }
+);
 export const View = (props: PropsWithChildren<{ className?: string }>) => {
   return (
     <Layout
@@ -145,10 +172,11 @@ export const Sidebar = observer((props: { sideMenu: JSX.Element }) => {
         desktop: 400,
         tablet: 300,
       })}
+      collapsed={layout.sideBarIsCollapsed}
       collapsible
       breakpoint={"lg"}
+      trigger={null}
       collapsedWidth={0}
-      
       defaultCollapsed={layout.size({
         mobile: true,
         desktop: false,

@@ -5,11 +5,15 @@ export enum LayoutMode {
     DESKTOP
 }
 
-class LayoutState<T extends ReadonlyArray<{ width: number, mode: string }>> {
-    screenSize: T[number]['mode']
-    constructor(private breakpoints: T) {
-        if (breakpoints.length === 0) throw new Error("Please provide at least one breakpoint")
-        this.screenSize = breakpoints[0].mode
+const layoutSize = [{ width: 1240, mode: 'desktop' }, { width: 0, mode: 'mobile' }, { width: 900, mode: 'tablet' }] as const
+
+type LayoutModes = typeof layoutSize[number]['mode']
+
+class LayoutState {
+    screenSize: LayoutModes
+    sideBarIsCollapsed = true
+    constructor() {
+        this.screenSize = layoutSize[0].mode
         this.calculateSize()
         window.addEventListener('resize', () => {
             this.calculateSize()
@@ -17,16 +21,22 @@ class LayoutState<T extends ReadonlyArray<{ width: number, mode: string }>> {
     }
 
     private calculateSize() {
-        const sorted = this.breakpoints.filter((q) => q.width <= window.innerWidth)
+        const sorted = layoutSize.filter((q) => q.width <= window.innerWidth)
         this.screenSize = P.maxBy(sorted, (q) => q.width)[0].mode
-
+        if (this.screenSize === 'mobile') {
+            this.sideBarIsCollapsed = true
+        } else {
+            this.sideBarIsCollapsed = false
+        }
     }
 
-    size<E extends { [k in T[number]['mode']]: any }>(data: E): E[T[number]['mode']] {
+    size<E extends { [k in LayoutModes]: any }>(data: E): E[LayoutModes] {
         return data[this.screenSize]
     }
 }
 
-export const layout = makeAutoObservable(new LayoutState([{ width: 1240, mode: 'desktop' }, { width: 0, mode: 'mobile' }, { width: 900, mode: 'tablet' }] as const))
+
+
+export const layout = makeAutoObservable(new LayoutState())
 
 

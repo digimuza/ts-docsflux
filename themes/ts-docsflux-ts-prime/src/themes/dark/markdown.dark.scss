@@ -807,7 +807,6 @@
     font-size: 100%;
     word-break: normal;
     white-space: pre;
-    background: transparent;
     border: 0;
   }
 
@@ -826,7 +825,7 @@
     overflow: auto;
     font-size: 85%;
     line-height: 1.45;
-    background-color: #1f1f1f;
+    background: #212121 !important;
     border-radius: 3px;
   }
 
